@@ -75,6 +75,8 @@ const handleEnded = () => {
   video.currentTime = 0;
   timeline.value = 0;
   playBtnIcon.classList = video.paused ? "fas fa-play" : "fas fa-pause";
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, { method: "POST" });
 };
 
 const handleTimelineChange = (event) => {
@@ -128,7 +130,7 @@ const handleClick = () => {
 };
 
 const handleSpaceBar = (event) => {
-  if (event.keyCode === 32) {
+  if (event.keyCode === 32 && event.target.type !== "textarea") {
     videoControls.classList.add("showing");
     setTimeout(hideControls, 3000);
     if (video.paused) {
@@ -146,9 +148,9 @@ volumeRange.addEventListener("input", handleVolumeChage);
 video.addEventListener("loadeddata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
 video.addEventListener("ended", handleEnded);
+video.addEventListener("click", handleClick);
 videoContainer.addEventListener("mousemove", handleMouseMove);
 videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimelineChange);
 fullScreenBtn.addEventListener("click", handleFullScreen);
-video.addEventListener("click", handleClick);
 document.addEventListener("keydown", handleSpaceBar);
