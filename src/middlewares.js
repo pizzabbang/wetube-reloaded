@@ -10,10 +10,28 @@ const s3 = new S3Client({
   },
 });
 
-const multerUploader = muterS3({
+const isHeroku = process.env.NODE_ENV === "production";
+
+const s3ImageUploader = muterS3({
   s3: s3,
   bucket: "wetubechallenge",
   acl: "public-read",
+  key: function (req, file, cb) {
+    const newFileName = Date.now() + "-" + file.originalname;
+    const fullPath = "images/" + newFileName;
+    cb(null, fullPath);
+  },
+});
+
+const s3VideoUploader = muterS3({
+  s3: s3,
+  bucket: "wetubechallenge",
+  acl: "public-read",
+  key: function (req, file, cb) {
+    const newFileName = Date.now() + "-" + file.originalname;
+    const fullPath = "videos/" + newFileName;
+    cb(null, fullPath);
+  },
 });
 
 export const localsMiddleware = (req, res, next) => {
@@ -46,12 +64,12 @@ export const avatarUpload = multer({
   limits: {
     fileSize: 3000000,
   },
-  storage: multerUploader,
+  storage: isHeroku ? s3ImageUploader : undefined,
 });
 export const videoUpload = multer({
   dest: "uploads/videos/",
   limits: {
     fileSize: 10000000,
   },
-  storage: multerUploader,
+  storage: isHeroku ? s3VideoUploader : undefined,
 });
